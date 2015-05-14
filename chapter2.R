@@ -1,3 +1,14 @@
+# Heath O'Brien (heath.obrien-at-gmail-dot-com)
+# MLwiN tutorial, chapter 2
+# 12 May 2015
+
+# last modified 14 May 2015
+
+# This is an attempt to reproduce the output of chapter 2 of the MLwiN tutorial
+
+# clear R of all objects
+rm(list=ls())
+
 library(dplyr)
 library(ggplot2)
 library(lmtest)
