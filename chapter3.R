@@ -2,7 +2,7 @@ library(lme4)
 library(lattice)
 library(ggplot2)
 #3.1: What are multilevel residuals?
-SchoolData<-read.csv(file = "BTSync/Courses//MLwiN/tutorial.txt", sep="\t")
+SchoolData<-read.csv(file = "tutorial.txt", sep="\t")
 
 #change variables to factors and relevel
 SchoolData$school<-factor(SchoolData$school)

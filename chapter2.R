@@ -3,7 +3,7 @@ library(ggplot2)
 library(lmtest)
 library(lme4)
 #2.2: Opening  the  worksheet  and  looking  at the data
-SchoolData<-read.csv(file = "BTSync/Courses//MLwiN/tutorial.txt", sep="\t")
+SchoolData<-read.csv(file = "tutorial.txt", sep="\t")
 SchoolData$school<-factor(SchoolData$school)
 SchoolData$girl<-factor(SchoolData$girl)
 summary(SchoolData)
