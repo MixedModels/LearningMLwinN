@@ -61,9 +61,13 @@ summary(MOD.4)
 school_SE <- 0.4143/65**.5
 residual_SE <- 0.9209/4059**.5
 
+#Dur, the Std.Dev. is just the square root of the Variance. It has nothing to do with the 
+#standard error of the estimate of the variance. I guess I have no idea how to get R to produce
+#the numbers in parens. 
+
 #β0j = -0.01408(0.05407) + µ0j
-#σ2µ0 = 0.1717(0.05138759)
-#σ2e = 0.8480(0.0144545)
+#σ2µ0 = 0.1717(?)
+#σ2e = 0.8480(?)
 #these numbers aren't exactly the same, but they're in the ballpark
 
 lrtest(MOD.4, lm(normexam ~ 1, data=SchoolData))
@@ -80,7 +84,6 @@ MOD.5 <- lmer(normexam ~ schgend + (1|school), data=SchoolData)
 summary(MOD.5)
 #yij = β0j + 0.06404(0.15308)boyschj + 0.25750(0.11973)girlschj + eij
 #β0j = -0.10239(0.07194) + µ0j
-#σ2µ0 = 0.1637(0.05018445)
-#σ2e = 0.8480(0.0144545)
-#error terms are exactly the same
+#σ2µ0 = 0.1637
+#σ2e = 0.8480
 
