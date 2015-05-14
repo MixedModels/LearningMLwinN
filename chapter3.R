@@ -6,7 +6,7 @@ SchoolData<-read.csv(file = "tutorial.txt", sep="\t")
 
 #change variables to factors and relevel
 SchoolData$school<-factor(SchoolData$school)
-SchoolData$schgend<-relevel(SchoolData$schgend, ref=65)
+SchoolData$school<-relevel(SchoolData$school, ref=65)
 SchoolData$girl<-factor(SchoolData$girl)
 SchoolData$schgend<-relevel(SchoolData$schgend, ref="mixedsch")
 summary(SchoolData)
