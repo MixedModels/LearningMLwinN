@@ -106,12 +106,12 @@ summary(MOD.5)
 #σ2e = 0.638
 #-2*logLIk = 9688.658
 
-#just for fun:
-augment(MOD.4) %>%
-  ggplot(., aes(standlrt, .fixed, colour=schgend)) +
-  geom_ribbon(aes(ymin = .fixed - 1.96 * 0.3036/sqrt(65), ymax=.fixed + 1.96 * 0.3036/sqrt(65)), alpha=.3) +
-  geom_point(aes(standlrt, normexam), data=SchoolData) +
-  #geom_line(aes(group =school))
+#It's not trivial to get the CI for the lines conditional on gender.
+#In principle, it should be possible to calculate them manually from the model summary, 
+#but I'd need to factor in the uncertianty in the slope in addition to the uncertainty in the intercept
+#this method from visreg gets close:
+library(visreg)
+visreg(MOD.4, "schgend", type="contrast")
 
 #4.4 Does the coefficient of standlrt vary across schools? Introducing a random slop
 MOD.6 <- lmer(normexam ~ standlrt + (standlrt|school), data=SchoolData)
