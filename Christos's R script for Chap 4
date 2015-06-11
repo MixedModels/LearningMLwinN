@@ -1,0 +1,106 @@
+######## CHAPTER 4:
+
+SchoolData<-read.table("G:/Stats/GLMMs/tutorial.txt",h=T)
+SchoolData$school<-factor(SchoolData$school)
+SchoolData$girl<-factor(SchoolData$girl)
+str(SchoolData)
+summary(SchoolData)
+
+# PAGE 47:
+plot(SchoolData$normexam~SchoolData$standlrt)
+
+# P 48:
+m1<-lm(SchoolData$normexam~SchoolData$standlrt)
+plot(m1)
+summary(m1)
+summary(m1)$sigma
+	# RETURNS Residual standard error
+s2e = 0.8056^2 = 0.8056**2 = 0.6489914
+-2*logLik(m1)
+	# ESTIMATE OF INTERCEPT (-0.002022) IS LARGER THAN MLwiN MANUAL (-0.001)
+	# EVERYTHING ELSE AGREES
+
+# P 49:
+m2<-lmer(normexam ~ standlrt + (1|school), data=SchoolData)
+summary(m2)
+	# AGAIN THE ESTIMATE OF THE INTERCEPT (0.001471) IS A LITTLE OFF (0.002)
+qqnorm(residuals(m2))
+plot(resid(m2)~fitted(m2))
+-2*logLik(m2)
+	# AGAIN, THE LOG LIKELIHOOD IS IN THE RIGHT BALL PARK
+
+# P 51:
+lrtest(m2, m1)
+lrtest(m2, lm(normexam ~ standlrt, data=SchoolData))
+	# AS IN HEATH'S CODE, Chisq (391.8) DIFFERS A BIT FROM MLwiN (403.3)
+
+# P 51:
+plot(predict(m2, level=0)~SchoolData$standlrt)
+m2a<-lme(normexam ~ standlrt,random=~1|school,data=SchoolData)
+summary(m2a)
+dev.new()
+plot(predict(m2a, level=0)~SchoolData$standlrt)
+plot(predict(m2a, level=1)~SchoolData$standlrt)
+	# WITH lme, predict(m2, level=0) GIVES PREDICTED VALUES JUST FOR THE FIXED EFFECTS; SET level=1 TO GIVE RANDOM EFFECTS INCLUDED AS WELL
+	# DOESN'T SEEM TO WORK HERE WITH lmer THOUGH (RANDOM EFFECTS ARE INCLUDED)
+
+m2_predicted_fixed_effects<-fixef(m2)[2]*SchoolData$standlrt+fixef(m2)[1]
+plot(m2_predicted_fixed_effects~SchoolData$standlrt)
+plot(SchoolData$normexam~SchoolData$standlrt)
+abline(b=fixef(m2)[2], a=fixef(m2)[1],col="red")
+abline(b=coefficients(m1)[2], a=coefficients(m1)[1],col="blue")
+	# COMPARISON OF PREDICTED FITS FROM lm AND lmer MODELS
+
+# P 54:
+ranef(m2)
+	# THESE ARE THE EFFECTS OF SCHOOL - I WOULD CALL THESE THE RANDOM EFFECTS, BUT MLwiN REFERS TO THEM AS SCHOOL RESIDUALS
+SchoolData$School_random<-ranef(m2)$school[as.numeric(SchoolData$school),1]
+	# THIS IS A MESSY WAY OF DOING IT: IT ADDS A NEW COLUMN TO SchoolData THAT IS THE RANDOM EFFECT OF THAT SCHOOL
+	# THIS THEN ALLOWS THE PREDICTED VALUE FOR EACH STUDENT TO BE CALCULATED (SEE P 56 OF THE MANUAL TOO):
+m2_predicted_effects<-fixef(m2)[2]*SchoolData$standlrt+fixef(m2)[1]+SchoolData$School_random
+	# AS WITH m2_predicted_fixed_effects BUT WITH THE RANDOM EFFECT AS WELL NOW ADDED ON
+plot(m2_predicted_effects~predict(m2))
+	# OR JUST USE predict() OR fitted() AS THEY DO THIS AUTOMATICALLY...
+
+# P 56:
+xyplot(m2_predicted_effects~SchoolData$standlrt,groups=SchoolData$school,auto.key=F)
+	# ALL SLOPES THE SAME, DIFFERENT INTERCEPTS
+
+# P 58:
+SchoolData$schgend<-relevel(SchoolData$schgend, ref="mixedsch")
+m3<-lmer(normexam ~ standlrt + schgend + (1|school), data=SchoolData)
+summary(m3)
+-2*logLik(m3)
+m4<-lm(normexam ~ standlrt + schgend, data=SchoolData)
+summary(m4)
+-2*logLik(m4)
+
+# P 60:
+m5<-lmer(normexam ~ standlrt + (standlrt|school), data=SchoolData)
+summary(m5)
+	# RESIDUAL VARIANCE OF RANDOM EFFECTS (0.55385) MATCHES MANUAL (0.554) 
+	# UNDER Corr IS 0.50, WHICH IS THE CORRELATION BETWEEN THE RANDOM SLOPES AND INTERCEPTS
+	# THE MANUAL FINDS THIS IS 0.49, SO VERY CLOSE
+-2*logLik(m5)
+plot(resid(m5)~fitted(m5))
+VarCorr(m5)$school
+	# THE FIRST TABLE HERE GIVES THE MATRIX SHOWN ON THE TOP OF P 62
+	# THE BOTTOM ONE THE CORRELATION BETWEEN SLOPES AND INTERCEPTS FOR school
+ranef(m5)
+	# THIS NOW HAS THE RANDOM SLOPE FOR EACH SCHOOL AS WELL
+plot(ranef(m5)$school[,1]~ranef(m5)$school[,2])
+	# SHOWS THE CORRELATION BETWEEN RANDOM SLOPES AND INTERCEPTS
+qqmath(ranef(m5, condVar=T, whichel = "school"))
+	# AUTOMATICALLY PLOTS THE CATEPILLAR PLOT FOR THE RANDOM SLOPE EFFECT AS WELL
+qqmath(ranef(m5, condVar=F, whichel = "school"))
+	# MAKING condVar=FALSE GETS RID OF THE ERROR BARS FROM THE PLOT 
+	# AS condVar IS "if the conditional variance-covariance matrices of the random effects should be added as an attribute", THE ERROR BARS HAVE SOMETHING TO DO WITH THIS???
+
+# P 62:
+lrtest(m5, m2)
+-2*lrtest(m5, m2)$LogLik
+	# THESE ARE IN THE BALL PARK OF THOSE QUOTED IN THE MANUAL
+
+# P 63:
+predict(m5)
+xyplot(predict(m5)~SchoolData$standlrt,groups=SchoolData$school,auto.key=F)
