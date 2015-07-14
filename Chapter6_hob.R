@@ -81,4 +81,11 @@ summary(MOD.6)
 
 lrtest(MOD.2, MOD.6) #significant
 
-#I have not earthly idea how to plot the effect of high vs low preforming schools conditional on input score
+#code to reproduce the plot on page 88 of the manual (adding confidence lines will be non-trivial)
+ggplot(SchoolData)+geom_abline(intercept = 0.29083, slope=0.18070) +
+  scale_y_continuous(limits=c(-.2, .8), breaks=seq(-.2, .8, .2)) + 
+  scale_x_continuous(limits=c(-2.4, 3.2), breaks=seq(-24, 32, 8)/10) +
+  geom_hline(yintercept = 0, linetype=2) +
+  geom_vline(xintercept = 0, linetype=2) +
+  ylab("hilowdiff") +
+  xlab("standlrt")
