@@ -1,0 +1,91 @@
+# MLwiN chapter 4
+# Josephine Walker
+
+library(dplyr)
+library(ggplot2)
+library(lme4)
+library(lmtest)
+
+# dat <- read.table("C:/Users/Josephine/Google Drive/Conferences and Courses/GLMM group/tutorial.txt",header=T)
+# 
+# save(dat,file="C:/Users/Josephine/Google Drive/Conferences and Courses/GLMM group/tutorial.RData")
+
+load("C:/Users/Josephine/Google Drive/Conferences and Courses/GLMM group/tutorial.RData")
+head(dat)
+
+ggplot(data=dat,aes(y=normexam,x=standlrt)) + geom_point() + xlim(c(-3,3.2))
+
+m1 <- lm(data=dat,normexam ~ standlrt)
+m1
+summary(m1)
+
+m2 <- lmer(data=dat,normexam ~ standlrt + (1|school),REML=F)
+m2
+summary(m2)
+
+qqnorm(residuals(m2))
+plot(resid(m2)-fitted(m2))
+
+# deviance is 9358.712 (m2), this is close to -2*loglikelihood reported in MLwiN, how do we get this value for lm?
+
+ll <- as.numeric(2*(logLik(m2)-logLik(m1))) 
+logLik(m2) # 4 df
+logLik(m1) # 3 df
+lrtest(m2,m1)
+lrtest(m1,m2) # order might matter with different ones?
+
+0.5*(1-pchisq(ll,df=1)) # 0 ... highly significant
+pchisq(ll,1)
+0.5*(1-pchisq(10,1)) # shows actual p value here
+
+
+plot(m1) # shows diagnostic plots
+
+ggplot(data=dat,aes(y=normexam,x=standlrt)) + geom_smooth(method='lm',formula=y~x)
+
+ggplot(data=dat,aes(y=normexam,x=standlrt)) + geom_point() + geom_smooth(method='lm') 
+
+
+x <- stats::predict(m2)
+plot(dat$standlrt,x)
+x2 <- stats::predict(m1)
+plot(dat$standlrt,x2)
+# can use lme() and then predict(m, level=0) to specifify which effects to plot... the result is a bit different -- see christos's code
+# can also use fitted() and fixef() and ranef()
+# fitted vs predict - one back transforms from link function
+
+x2 <- cbind(pred=x, school=dat$school,x=dat$standlrt)
+ggplot(data=data.frame(x2),aes(x=x,y=pred,group=factor(school))) + geom_line()
+
+
+
+
+####
+m3 <- lmer(data=dat,normexam ~ relevel(schgend,"mixedsch") + standlrt + (1|school))
+summary(m3)
+m3
+-2*logLik(m3)
+
+m4 <- lm(data=dat,normexam ~ relevel(schgend,"mixedsch") + standlrt)
+m4
+summary(m4)
+
+dat$school <- as.factor(dat$school)
+m5 <- lmer(data=dat,normexam ~ standlrt + (1 + standlrt|school))
+m5
+summary(m5)
+-2*logLik(m5)
+# why is the log likelihood different?? REML?
+VarCorr(m5)$school
+
+x3 <- stats::predict(m5)
+x3 <- cbind(pred=x3, school=dat$school,x=dat$standlrt)
+ggplot(data=data.frame(x3),aes(x=x,y=pred,group=factor(school))) + geom_line()
+library(lattice)
+qqmath(ranef(m5,condVar=F,whichel="school"))
+qqmath(ranef(m5,condVar=T,whichel="school"))
+anova(m5,m2) # refits using ML
+lrtest(m5,m2) # doesn't fit
+
+
+# can use package magrittr and %>% to pipe - this is supposed to be really efficient
