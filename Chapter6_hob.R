@@ -88,4 +88,8 @@ ggplot(SchoolData)+geom_abline(intercept = 0.29083, slope=0.18070) +
   geom_hline(yintercept = 0, linetype=2) +
   geom_vline(xintercept = 0, linetype=2) +
   ylab("hilowdiff") +
-  xlab("standlrt")
+  xlab("standlrt") +
+  theme(plot.margin = unit(c(1,1,1.1,1), "cm"))
+
+grid.text("© Heath O'Brien 2015", x=unit(.99, "npc"), y=unit(.01, "npc"), just=c("right", "bottom"))
+
