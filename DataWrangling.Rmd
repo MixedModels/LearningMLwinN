@@ -189,6 +189,14 @@ merge(df1, df2)
 df1 %>% inner_join(df2)
 ```
 
+## Working with Databases
+By storing your data in a MySQL database, it's possible to work with extremely large datasets
+- 21.7 million blast results (1.2 Gb on file)
+```{r warning=FALSE}
+db <- src_mysql("test", user = "root", password = "", host='localhost')
+db %>% tbl("Blast") %>% filter(qseqid == 'KRAUScomp174846_c0_seq1_0374')
+db %>% tbl("Blast") %>% filter(hitlen > 2000) %>% select(qseqid, sseqid, pident)
+```
 
 *see the [Rstudio data wrangling cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
 
