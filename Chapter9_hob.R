@@ -7,7 +7,7 @@ library(lmtest) #lrtest
 library(dplyr)
 
 #import and format dataset
-ContraceptiveUse <- read_csv("~/Desktop/bang.csv")
+ContraceptiveUse <- read_csv("https://raw.githubusercontent.com/MixedModels/LearningMLwinN/master/bang.csv")
 ContraceptiveUse$age <- round(ContraceptiveUse$age)
 ContraceptiveUse$district<-factor(ContraceptiveUse$district)
 ContraceptiveUse$use<-factor(ContraceptiveUse$use)
