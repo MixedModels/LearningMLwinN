@@ -1,0 +1,222 @@
+---
+title: "Working with RStudio and Git"
+author: "Heath O'Brien"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+## What is Git
+- A version control system that saves a snapshot of your project every time you make changes
+- Each change has to be documented with a description of the changes
+- If multiple people are working on the same project (or if one person works on it in multiple places), changes can be synced
+- Syncing requires storing the project on a Git server (eg, [GitHub](https://github.com/))
+- Since code is stored online, it's easy to share with others
+- GitHub is a free service, but requires that all code to be publicly available
+    - this isn't normally a problem for biologists, though you may want to ensure that your **data** are not included in the repository
+
+## The preferred workflow for Git
+<div style='width:450px'>
+![GitFlow Branching Model](http://nvie.com/img/git-model@2x.png)
+</div>
+## A realistic workflow for Git
+![XKCD Branching Model](http://imgs.xkcd.com/comics/git.png)
+
+## Setup 
+
+- Installing RStudio
+    - Available from https://www.rstudio.com
+    - Appears to require EUR to install
+
+- Installing GitHub Desktop
+    - Available from https://desktop.github.com
+    - For some reason, this seems to install with no difficulty
+    - Create GitHub account and log into GitHub Desktop using these credentials
+    - In theory, it is possible to run Git directly through RStudio, but:
+        A) You would have to learn a new interface to use Git for any other project
+        B) I can't get it to work with the networked drive
+
+- Cloning [LearningMLwiN](https://github.com/MixedModels/LearningMLwinN)
+    - Click on + in upper left corner of GitHub Desktop, then "Clone"
+    - Select MixedModels/LearningMLwinN from the menu (if it doesn't show up, ask me to add you to MixedModels)
+    - Select destination folder
+    - Open RStudio, click on project selector in upper right corner, and select "New Project"
+    - Click on "Existing Directory" and navigate to cloned repository, then click "select folder" and "Create Project"
+
+- Adding an Existing Project
+    - Click on project selector in upper right corner of RStudio and select "New Project"
+    - Click on "Existing Directory" and navigate to folder, then click "Select Folder" and "Create Project"
+    - Click on + in upper left corner of GitHub Desktop, then "Create"
+    - Navigate to folder and click OK
+    - Give repository a name and create (note that redundant names in different locations on your file system will clash on the server)
+    
+- Starting from Scratch
+    - Click on project selector in upper right corner of RStudio and select "New Project"
+    - Click on "New Directory", then "Empty Project", then pick a project name and location
+    - Click on + in upper left corner of GitHub Desktop, then "Create"
+    - Navigate to folder and click OK
+    - Give repository a name and create
+   
+## Working with RStudio
+- Collects all of the files associated with a project together
+- Snippets of code from a script can be run on their own, or code can be entered directly into the console
+- Nice GUIs for viewing and saving plots, importing data-sets, and viewing data-frames
+- Work-spaces are automatically saved for each project
+- I have not figured out an easy way to work on scripts that accept command line arguments
+
+## R Markdown
+- Used to prepare this document
+- Simple plain text [syntax](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf) used to format document (this syntax is also used many other places, including GitHub)
+- Code and output can be embedded:
+```{r message=FALSE}
+library(lme4) #glmer
+library(readr)
+SchoolData<-read_tsv("https://raw.githubusercontent.com/MixedModels/LearningMLwinN/master/tutorial.txt")
+SchoolData$school<-factor(SchoolData$school)
+SchoolData$girl<-factor(SchoolData$girl)
+MOD.1 <- lmer(normexam ~ standlrt + (1|school), data = SchoolData, REML=F)
+summary(MOD.1)
+
+```
+
+- Plots can also be embedded without displaying the code:
+    
+```{r echo=FALSE, message=FALSE}
+library(ggplot2)
+library(broom)
+library(dplyr)
+augment(MOD.1) %>%
+  ggplot(., aes(standlrt, .fitted)) +
+  geom_line(aes(group =school), colour="blue") +
+  geom_point(aes(y=normexam), shape=17, colour="blue", size=3, data = SchoolData) +
+  scale_y_continuous(breaks=seq(-2.4, 1.8, .6)) + 
+  scale_x_continuous(breaks=seq(-24, 32, 8)/10)
+
+```
+
+- Reports can be converted to html, pdf, ms word, etc using the "Knit" drop-down menu
+- A workflow that I have found to be useful is to experiment with analyses using R Markdown (which can be easily shared with collaborators and mentors), then to prepare R scripts that generate all of the final analyses included in the paper
+
+## Working with GitHub Desktop
+
+- To make changes to the repo:
+    - Click on "Changes" at top of window
+    - Select files to add
+    - Write summary of changes and (optional) description
+    - Click "commit to master"
+- To revert changes:
+    - Click on "History" at top of window
+    - Navigate through commits to find the offending edit (deletions are marked red, additions are green)
+    - Click on "Revert"
+- To sync local copy to remote server:
+    - Click "Sync"
+
+- To resolve conflicts:
+    - If sync fails because changes on remote server can't be automatically merged with local changes, open file in RStudio and edit conflicts manually
+    - Conflicts look like this:
+    
+    - ```
+<<<<<<<<<<<< HEAD
+local version of code
+=============
+remote version
+>>>>>>>>>>>> origin/master
+```  
+    - Edit file to include whatever parts from the local and remote versions you please (and remove markers added by Git)
+    - Return to GitHub Desktop, commit changes, and redo sync
+    - If all else fails, save local files in another location, delete the project, clone fresh copy from server, then add back in your local changes
+    
+- Working with branches:
+    - I generally don't bother creating additional branches beyond the local and remote master versions
+    - I mostly mention it because it is a central feature of git and there is a prominant widget for it in GitHub Desktop
+    - If multiple people are working on the same project, it's nice if they can work on the same files independently without having to merge everything together each time they make a commit
+    - This can acomplished by creating seperate branches for each person, then merging everything together once everyone has completed their part of the project
+    - Create a new branch by clicking on the "Create new branch" is in the upper left, next to the "master" dropdown menu
+    - Give your branch a name and click OK
+    - Any changes made in RStudio will now be confined to your new branch
+    - The "Sync" button will now be replaced by a "Publish" button because there is no copy of your new branch on the server to sync to
+    - After clicking on "Publish", the "Sync" button will come back and any changes made to your files will not conflict with changes on the master version on the server
+    - You can now use the drop down menu in the upper left to switch between brances, which will automatically change the code in RStudio
+    - When you are ready to merge branches back together, you need to make a Pull request, then go to the online version and confirm the request
+    - There is a Pull request button in GitHub Desktop, but it's probably easier to do it all online
+    - If there are conflicts, they can be resolved as above
+    
+## A few additional considerations
+- Bookmarking snapshots (example: the version used for the analyses in a paper submission)
+    - Make zipped copy of directory
+    - Make a note the number of the last commit before submission (eg; ce289b3)
+    - Create a separate branch for each submission
+    - Tag commit
+        - Go online and click on the "0 releases" button beneath the project description
+        - Click on "Create a new release"
+        - Give release a name (unfortunately only names like "v1.0" are supported)
+        - Click on "This is a pre-release" if it's not the final version of the paper, then on "Publish release"
+        - This will automatically create a ziped version of all the code that can be navigated to by clicking on the "1 release" button for the project
+- Excluding private files
+    - When you initialise a repo, a .gitignore file will automatically be created with a list of files that will never be synced to the server
+    - Files on the list will not show up on the lists of modified files to add to a commit
+    - It's a good idea to list any data files that you don't want to make public in this file, along with any config files that contain things like login credentials
+    - Of course, any files that are not part of the repo will need to be synced some other way
+
+- README, LICENSE
+    - When a repo is created online, you have the option of creating a README.md file that is displayed automatically on the landing page for your project
+    - If you are creating a repo locally, you'd need to do this manually with RStudio (or other text editor)
+    - You are also given the option of adding a license to the repo, though the available options are tailored to software (I would suggest using the Creative Commons [CC-BY](https://creativecommons.org/licenses/by/2.0/uk/legalcode) license for most biology projects)
+
+## Beyond R
+- Using [pandoc](http://pandoc.org/) directly to format Markdown files
+    - Reports, letters, manuscripts
+    - Requires a some knowledge of LaTeX for any advanced formatting
+    - This command:
+    
+```
+pandoc -r markdown  -s -S --latex-engine=pdflatex --template=letter.template -o letter.pdf letter.md 
+```
+can convert this:
+    
+```
+---
+address:
+ - Senior Scientific Editor
+ - Nature
+opening: Dear Sir,
+closing: Yours sincerely
+
+...
+
+
+**RE: Manuscript submission.**
+
+I write to ask you to consider for publication in your august journal our attached manuscript entitled: “Genome editing and precision medicine: a systems biology approach” by Heath O'Brien and co-authors.
+
+In this landmark study will revolutionize our understanding of medicine and something about CRISPR. You would be a fool to pass up an opportunity to publish it.
+
+When you do send decide to send it to reviewers, I suggest the following junior colleagues who would be too intimidated to criticize it, even anonymously: [...]
+
+Thank you for your consideration.
+
+```
+
+into this:
+<div style='width:750px'>
+![Example Letter](https://raw.githubusercontent.com/MixedModels/LearningMLwinN/master/ScreenShots/letter.png)
+</div>
+
+- Meta-notebooks
+    - Notes can be organised in a logical order, without interleaving unrelated work that was done on the same day
+    - Commit history preserves a chronological record
+    - Additional explanation, comments, etc can be recorded in commit message without cluttering notes
+    - If you're fortunate enough to have lab mentors, they can easily review your notes and leave comments
+    - If using the free version of GitHub, you may need to be a bit coy about exactly what you are working on to prevent your competetors from stealing you work
+- Using Git for manuscript writing
+    - Can be used to avoid this:
+
+    - <blockquote class="twitter-tweet" lang="en"><p lang="und" dir="ltr">Finaldec11_rev3_finalfinal2r_rev5r_edit4_edit6_v13_rr2jun13_[shortv]finalrev22_resub4_nearfinalresp4r_newsubnov23_rev2_ifeelsad[2]_r.docx</p>&mdash; Shit Academics Say (@AcademicsSay) <a href="https://twitter.com/AcademicsSay/status/685436016077967360">January 8, 2016</a></blockquote>
+
+    - Merging changes by different co-authors is done automatically
+    - Keeps a record of all changes, who made them, and why
+    - Discussions about particular changes can be had in the comment thread for that change instead of in email threads
+    - Issue tracker can be used as a to-do list, and also includes comment threads for discussion of proposed tasks
+    - Branching can be used to allow a co-author to make a series of commits that can all be merged at once
+    - This may well be something you'd want a private repo for. Private GitHub accounts are £5 per month, but appear to be available for free to educational institutions
+
+<br>
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">Working with RStudio and Git</span> by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Heath O'Brien</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
