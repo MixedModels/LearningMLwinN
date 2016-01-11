@@ -208,9 +208,7 @@ into this:
     - If using the free version of GitHub, you may need to be a bit coy about exactly what you are working on to prevent your competetors from stealing you work
 - Using Git for manuscript writing
     - Can be used to avoid this:
-
-    - <blockquote class="twitter-tweet" lang="en"><p lang="und" dir="ltr">Finaldec11_rev3_finalfinal2r_rev5r_edit4_edit6_v13_rr2jun13_[shortv]finalrev22_resub4_nearfinalresp4r_newsubnov23_rev2_ifeelsad[2]_r.docx</p>&mdash; Shit Academics Say (@AcademicsSay) <a href="https://twitter.com/AcademicsSay/status/685436016077967360">January 8, 2016</a></blockquote>
-
+    - ![tweet](https://raw.githubusercontent.com/MixedModels/LearningMLwinN/master/ScreenShots/tweet.png)
     - Merging changes by different co-authors is done automatically
     - Keeps a record of all changes, who made them, and why
     - Discussions about particular changes can be had in the comment thread for that change instead of in email threads
