@@ -76,7 +76,7 @@ MOD.1 <- lmer(normexam ~ standlrt + (1|school), data = SchoolData, REML=F)
 summary(MOD.1)
 
 ```
-
+Try git demo
 - Plots can also be embedded without displaying the code:
     
 ```{r echo=FALSE, message=FALSE}
